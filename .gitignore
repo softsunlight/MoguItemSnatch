@@ -3,3 +3,5 @@
 ################################################################################
 
 /.vs/MoguItemSnatch/v16
+/MoguItemSnatch/bin/Debug/netcoreapp3.1
+/MoguItemSnatch/obj

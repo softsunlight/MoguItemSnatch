@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MoguItemSnatch": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

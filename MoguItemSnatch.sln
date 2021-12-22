@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoguItemSnatch", "MoguItemSnatch\MoguItemSnatch.csproj", "{D9D44B99-B217-4B9B-887F-270F8304FC68}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9D44B99-B217-4B9B-887F-270F8304FC68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9D44B99-B217-4B9B-887F-270F8304FC68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9D44B99-B217-4B9B-887F-270F8304FC68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9D44B99-B217-4B9B-887F-270F8304FC68}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {47A25277-9E1A-4E40-A07F-C0164C49B512}
+	EndGlobalSection
+EndGlobal
