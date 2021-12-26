@@ -99,6 +99,14 @@ namespace MoguItemSnatch.Domain.Item
         public ItemParams ItemParams { get; set; }
         [JsonProperty("skuInfo")]
         public SkuInfo SkuInfo { get; set; }
+        [JsonProperty("lowPrice")]
+        public string LowPrice { get; set; }
+        [JsonProperty("lowNowPrice")]
+        public string LowNowPrice { get; set; }
+        [JsonProperty("highPrice")]
+        public string HighPrice { get; set; }
+        [JsonProperty("highNowPrice")]
+        public string HighNowPrice { get; set; }
     }
 
     public class DetailInfo

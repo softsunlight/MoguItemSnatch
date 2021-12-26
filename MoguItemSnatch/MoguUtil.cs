@@ -223,6 +223,146 @@ namespace MoguItemSnatch
         }
 
         /// <summary>
+        /// 获取蘑菇街主题市场中分类的商品数据
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="pageNo"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public static string GetSearchData(string action, int pageNo, int pageSize)
+        {
+            HttpWebRequest httpWebRequest = null;
+            HttpWebResponse httpWebResponse = null;
+            StreamReader streamReader = null;
+            try
+            {
+                string itemUrl = "https://list.mogu.com/search";
+
+                Dictionary<string, string> requestParams = new Dictionary<string, string>();
+                requestParams["callback"] = "searchdatacallback";
+                requestParams["cKey"] = pageSize.ToString();
+                requestParams["page"] = pageNo.ToString();
+                requestParams["sort"] = "pop";
+                requestParams["action"] = action;
+                requestParams["_"] = GetUnixTimeStamp(DateTime.Now).ToString();
+
+
+                httpWebRequest = (HttpWebRequest)WebRequest.Create(itemUrl + "?" + string.Join("&", requestParams.Keys.Select(p => p + "=" + requestParams[p])));
+                httpWebRequest.Method = "GET";
+                httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                streamReader = new StreamReader(httpWebResponse.GetResponseStream());
+                string result = streamReader.ReadToEnd();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Write("MoguUtil.GetSearchData Error", ex);
+            }
+            finally
+            {
+                if (httpWebRequest != null)
+                {
+                    httpWebRequest.Abort();
+                }
+                if (httpWebResponse != null)
+                {
+                    httpWebResponse.Close();
+                    httpWebResponse.Dispose();
+                }
+                if (streamReader != null)
+                {
+                    streamReader.Close();
+                    streamReader.Dispose();
+                }
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 获取蘑菇街店铺内所有商品数据
+        /// </summary>
+        /// <param name="shopId"></param>
+        /// <param name="pageNo"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public static string GetShopData(string shopId, int pageNo, int pageSize)
+        {
+            HttpWebRequest httpWebRequest = null;
+            HttpWebResponse httpWebResponse = null;
+            StreamReader streamReader = null;
+            try
+            {
+                if (string.IsNullOrEmpty(uuid))
+                {
+                    uuid = GetUuid();
+                }
+                if (string.IsNullOrEmpty(h5Token))
+                {
+                    h5Token = GetH5Token();
+                }
+
+                string itemUrl = "https://api.mogu.com/h5/mwp.shopappservice.goodsAll/1/";
+
+                Dictionary<string, string> requestParams = new Dictionary<string, string>();
+                requestParams["mw-appkey"] = "100028";
+                requestParams["mw-ttid"] = "NMMain@mgj_pc_1.0";
+                requestParams["mw-t"] = GetUnixTimeStamp(DateTime.Now).ToString();
+                requestParams["mw-uuid"] = uuid;
+                requestParams["mw-h5-os"] = "unknown";
+
+                var orderedResult = requestParams.Keys.OrderBy(x => x);
+
+                string signContent = string.Join("&", orderedResult.Select(p => requestParams[p]));
+
+                signContent += "&mwp.shopappservice.goodsAll";
+                signContent += "&1";
+                string data = "{\"shopId\":\"" + shopId + "\",\"categoryId\":\"\",\"page\":" + pageNo + ",\"shopType\":\"mgjpc\",\"pageSize\":" + pageSize + ",\"sort\":\"\"}";
+                signContent += "&" + Md5(data);
+                signContent += "&" + h5Token;
+
+                requestParams["data"] = data;
+
+                requestParams["mw-sign"] = Md5(signContent);
+                requestParams["callback"] = "mwpCb2";
+                requestParams["_"] = GetUnixTimeStamp(DateTime.Now).ToString();
+
+
+                httpWebRequest = (HttpWebRequest)WebRequest.Create(itemUrl + "?" + string.Join("&", requestParams.Keys.Select(p => p + "=" + requestParams[p])));
+                httpWebRequest.Method = "GET";
+                httpWebRequest.Referer = "https://shop.mogu.com/" + shopId + "/index/total";
+                httpWebRequest.Headers["cookie"] = _cookies;
+                httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                streamReader = new StreamReader(httpWebResponse.GetResponseStream());
+                string result = streamReader.ReadToEnd();
+                result = result.Replace("mwpCb2(", "");
+                result = result.TrimEnd(')');
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Write("MoguUtil.GetShopData Error", ex);
+            }
+            finally
+            {
+                if (httpWebRequest != null)
+                {
+                    httpWebRequest.Abort();
+                }
+                if (httpWebResponse != null)
+                {
+                    httpWebResponse.Close();
+                    httpWebResponse.Dispose();
+                }
+                if (streamReader != null)
+                {
+                    streamReader.Close();
+                    streamReader.Dispose();
+                }
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
         /// 获取Unix时间戳
         /// </summary>
         /// <param name="time"></param>

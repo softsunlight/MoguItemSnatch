@@ -6,3 +6,6 @@
 /MoguItemSnatch/bin/Debug/netcoreapp3.1
 /MoguItemSnatch/obj
 /.vs/MoguItemSnatch/DesignTimeBuild
+/MoguItemSnatch.Dao/obj
+/MoguItemSnatch.Model/obj
+/MoguItemSnatch.Service/obj

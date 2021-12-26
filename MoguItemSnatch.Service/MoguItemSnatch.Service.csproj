@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MoguItemSnatch.Dao\MoguItemSnatch.Dao.csproj" />
+    <ProjectReference Include="..\MoguItemSnatch.Model\MoguItemSnatch.Model.csproj" />
+  </ItemGroup>
+
+</Project>

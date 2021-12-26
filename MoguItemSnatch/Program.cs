@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 
 namespace MoguItemSnatch
 {
@@ -8,8 +9,9 @@ namespace MoguItemSnatch
     {
         static void Main(string[] args)
         {
-
-            string uuid = MoguUtil.GetItemData("1mw3a22");
+            MoguUtil.GetShopData("1os6vu", 1, 60);
+            MoguCrawler moguCrawler = new MoguCrawler();
+            moguCrawler.Start();
         }
     }
 }

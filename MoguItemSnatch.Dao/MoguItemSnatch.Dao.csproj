@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MoguItemSnatch.Model\MoguItemSnatch.Model.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="softsunlight.orm">
+      <HintPath>..\MoguItemSnatch\LibDLL\softsunlight.orm.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
