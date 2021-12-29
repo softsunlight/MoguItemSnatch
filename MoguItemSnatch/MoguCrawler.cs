@@ -198,7 +198,20 @@ namespace MoguItemSnatch
                             ShopInfo shopInfo = itemDetailResponse.Data.Result.ShopInfo;
                             if (shopInfo != null)
                             {
-
+                                MoguShopDao moguShopDao = new MoguShopDao();
+                                MoguShop moguShop= moguShopDao.Get(new MoguShop(){ ShopId=shopInfo.ShopId });
+                                if(moguShop==null)
+                                {
+                                    moguShop=new MoguShop()
+                                    {
+                                        CreateDate=DateTime.Now
+                                    };
+                                }
+                                moguShop.ShopId=shopInfo.ShopId;
+                                moguShop.Name=shopInfo.Name;
+                                moguShop.ShopUrl=shopInfo.ShopUrl;
+                                moguShop.ShopLogo=shopInfo.ShopLogo;
+                                moguShopDao.Update(moguShop);
                             }
                         }
                         itemIdSet.Remove(itemId);
