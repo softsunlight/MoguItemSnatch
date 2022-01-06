@@ -213,6 +213,28 @@ namespace MoguItemSnatch
                                 moguShop.ShopLogo=shopInfo.ShopLogo;
                                 moguShopDao.Update(moguShop);
                             }
+                            ItemInfo itemInfo = itemDetailResponse.Data.Result.ItemInfo;
+                            if(itemInfo != null)
+                            {
+                                MoguItemDao moguItemDao = new MoguItemDao();
+                                MoguItem moguItem= moguItemDao.Get(new MoguItem(){ ItemId=itemInfo.ItemId });
+                                if(moguItem==null)
+                                {
+                                    moguItem=new MoguItem()
+                                    {
+                                        CreateDate=DateTime.Now
+                                    };
+                                }
+                                moguItem.ItemId=itemInfo.ItemId;
+                                moguItem.Title=itemInfo.Title;
+                                moguItem.Desc=itemInfo.Desc;
+                                moguItem.LowPrice=Convert.ToDecimal(itemInfo.LowPrice);
+                                moguItem.LowNowPrice=Convert.ToDecimal(itemInfo.LowNowPrice);
+                                moguItem.HighPrice=Convert.ToDecimal(itemInfo.HighPrice);
+                                moguItem.HighNowPrice=Convert.ToDecimal(itemInfo.HighNowPrice);
+                                moguItemDao.Update(moguItem);
+
+                            }
                         }
                         itemIdSet.Remove(itemId);
                         Thread.Sleep(20);
