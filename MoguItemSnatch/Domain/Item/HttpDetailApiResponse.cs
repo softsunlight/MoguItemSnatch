@@ -47,12 +47,20 @@ namespace MoguItemSnatch.Domain.Item
 
     public class DetailResult
     {
+        [JsonProperty("topImages")]
+        public List<string> TopImages { get; set; }
+        [JsonProperty("skuInfo")]
+        public SkuInfo SkuInfo { get; set; }
+        [JsonProperty("detailInfo")]
+        public DetailInfo DetailInfo { get; set; }
+        [JsonProperty("itemInfo")]
+        public ItemInfo ItemInfo { get; set; }
+        [JsonProperty("itemParams")]
+        public ItemParams ItemParams { get; set; }
         [JsonProperty("userInfo")]
         public UserInfo UserInfo { get; set; }
         [JsonProperty("shopInfo")]
         public ShopInfo ShopInfo { get; set; }
-        [JsonProperty("itemInfo")]
-        public ItemInfo ItemInfo { get; set; }
     }
 
     public class UserInfo
@@ -91,14 +99,6 @@ namespace MoguItemSnatch.Domain.Item
         public string Title { get; set; }
         [JsonProperty("itemId")]
         public string ItemId { get; set; }
-        [JsonProperty("detailInfo")]
-        public DetailInfo DetailInfo { get; set; }
-        [JsonProperty("topImages")]
-        public List<string> TopImages { get; set; }
-        [JsonProperty("itemParams")]
-        public ItemParams ItemParams { get; set; }
-        [JsonProperty("skuInfo")]
-        public SkuInfo SkuInfo { get; set; }
         [JsonProperty("lowPrice")]
         public string LowPrice { get; set; }
         [JsonProperty("lowNowPrice")]
@@ -197,6 +197,8 @@ namespace MoguItemSnatch.Domain.Item
         public int SizeId { get; set; }
         [JsonProperty("delayReason")]
         public string DelayReason { get; set; }
+        [JsonProperty("img")]
+        public string Img { get; set; }
     }
 
     public class Prop

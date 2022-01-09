@@ -7,6 +7,7 @@ namespace MoguItemSnatch.Model
     public class MoguItem
     {
         public int Id { get; set; }
+        public string ShopId { get; set; }
         public string ItemId { get; set; }
         public string Title { get; set; }
         public string Desc { get; set; }
@@ -59,6 +60,7 @@ namespace MoguItemSnatch.Model
         public int SizeId { get; set; }
         public string Size { get; set; }
         public int Stock { get; set; }
+        public string Img { get; set; }
         public DateTime CreateTime { get; set; }
         public DateTime ModifyTime { get; set; }
     }

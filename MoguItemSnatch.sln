@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoguItemSnatch", "MoguItemSnatch\MoguItemSnatch.csproj", "{D9D44B99-B217-4B9B-887F-270F8304FC68}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoguItemSnatch.Dao", "MoguItemSnatch.Dao\MoguItemSnatch.Dao.csproj", "{43B57780-C1DE-44A8-A8BA-5B792EA6E009}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoguItemSnatch.Dao", "MoguItemSnatch.Dao\MoguItemSnatch.Dao.csproj", "{43B57780-C1DE-44A8-A8BA-5B792EA6E009}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoguItemSnatch.Model", "MoguItemSnatch.Model\MoguItemSnatch.Model.csproj", "{2479398F-4201-4661-9503-98FA533929FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoguItemSnatch.Model", "MoguItemSnatch.Model\MoguItemSnatch.Model.csproj", "{2479398F-4201-4661-9503-98FA533929FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoguItemSnatch.Service", "MoguItemSnatch.Service\MoguItemSnatch.Service.csproj", "{9A66BBA0-C970-4C5E-AF5A-C89B31C94324}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoguItemSnatch.Service", "MoguItemSnatch.Service\MoguItemSnatch.Service.csproj", "{9A66BBA0-C970-4C5E-AF5A-C89B31C94324}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

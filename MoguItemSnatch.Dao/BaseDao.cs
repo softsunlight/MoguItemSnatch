@@ -46,7 +46,7 @@ namespace MoguItemSnatch.Dao
             client.Delete(entities);
         }
 
-        public IEnumerable<T> Get<T>(T entity)
+        public IList<T> Get<T>(T entity)
         {
             return client.Get(entity);
         }

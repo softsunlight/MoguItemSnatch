@@ -9,3 +9,6 @@
 /MoguItemSnatch.Dao/obj
 /MoguItemSnatch.Model/obj
 /MoguItemSnatch.Service/obj
+/MoguItemSnatch.Dao/bin/Debug/netcoreapp3.1
+/MoguItemSnatch.Model/bin/Debug/netcoreapp3.1
+/MoguItemSnatch.Service/bin/Debug/netcoreapp3.1
