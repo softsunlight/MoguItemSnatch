@@ -15,4 +15,16 @@
     <ProjectReference Include="..\MoguItemSnatch.Service\MoguItemSnatch.Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="softsunlight.orm">
+      <HintPath>LibDLL\softsunlight.orm.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

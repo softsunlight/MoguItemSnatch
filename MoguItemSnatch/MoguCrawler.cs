@@ -234,12 +234,15 @@ namespace MoguItemSnatch
             {
                 try
                 {
-                    while (itemIdSet.Count > 0)
+                    if (itemIdSet.Count > 0)
                     {
-                        string itemId = itemIdSet.ElementAt(0);
-                        SaveItemDetail(itemId);
-                        itemIdSet.Remove(itemId);
-                        Thread.Sleep(20);
+                        List<string> itemList = new List<string>(itemIdSet);
+                        foreach (string itemId in itemList)
+                        {
+                            SaveItemDetail(itemId);
+                            itemIdSet.Remove(itemId);
+                            Thread.Sleep(20);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -259,8 +262,9 @@ namespace MoguItemSnatch
                 ShopInfo shopInfo = itemDetailResponse.Data.Result.ShopInfo;
                 if (shopInfo != null)
                 {
-                    MoguShop moguShop = baseDao.Get(new MoguShop() { ShopId = shopInfo.ShopId }).FirstOrDefault();
-                    if (moguShop == null)
+                    MoguShop moguShop = null;
+                    IList<MoguShop> moguShopList = baseDao.Get(new MoguShop() { ShopId = shopInfo.ShopId });
+                    if (moguShopList == null || moguShopList.Count == 0)
                     {
                         moguShop = new MoguShop()
                         {
@@ -269,7 +273,10 @@ namespace MoguItemSnatch
                     }
                     else
                     {
+                        moguShop = moguShopList.FirstOrDefault();
                         moguShop.ModifyTime = DateTime.Now;
+                        moguShopList.RemoveAt(0);
+                        baseDao.Delete(moguShopList);
                     }
                     moguShop.ShopId = shopInfo.ShopId;
                     moguShop.Name = shopInfo.Name;
@@ -300,8 +307,9 @@ namespace MoguItemSnatch
                 ItemInfo itemInfo = itemDetailResponse.Data.Result.ItemInfo;
                 if (itemInfo != null)
                 {
-                    MoguItem moguItem = baseDao.Get(new MoguItem() { ItemId = itemInfo.ItemId }).FirstOrDefault();
-                    if (moguItem == null)
+                    MoguItem moguItem = null;
+                    IList<MoguItem> moguItemList = baseDao.Get(new MoguItem() { ItemId = itemInfo.ItemId });
+                    if (moguItemList == null || moguItemList.Count == 0)
                     {
                         moguItem = new MoguItem()
                         {
@@ -310,7 +318,10 @@ namespace MoguItemSnatch
                     }
                     else
                     {
+                        moguItem = moguItemList.FirstOrDefault();
                         moguItem.ModifyTime = DateTime.Now;
+                        moguItemList.RemoveAt(0);
+                        baseDao.Delete(moguItemList);
                     }
                     moguItem.ShopId = shopInfo.ShopId;
                     moguItem.ItemId = itemInfo.ItemId;
@@ -593,43 +604,46 @@ namespace MoguItemSnatch
             {
                 try
                 {
-                    while (shopIdSet.Count > 0)
+                    if (shopIdSet.Count > 0)
                     {
-                        string shopId = shopIdSet.ElementAt(0);
-                        int pageNo = 1;
-                        int pageSize = 60;
-                        int total = 0;
-                        do
+                        List<string> shopList = new List<string>(shopIdSet);
+                        foreach (string shopId in shopList)
                         {
-                            string shopStr = MoguUtil.GetShopData(shopId, pageNo, pageSize);
-                            ShopGoodsAllResponse shopGoodsAllResponse = null;
-                            try
+                            int pageNo = 1;
+                            int pageSize = 60;
+                            int total = 0;
+                            do
                             {
-                                shopGoodsAllResponse = JsonConvert.DeserializeObject<ShopGoodsAllResponse>(shopStr);
-                                if (shopGoodsAllResponse != null && shopGoodsAllResponse.Data != null)
+                                string shopStr = MoguUtil.GetShopData(shopId, pageNo, pageSize);
+                                ShopGoodsAllResponse shopGoodsAllResponse = null;
+                                try
                                 {
-                                    if (shopGoodsAllResponse.Data.List != null)
+                                    shopGoodsAllResponse = JsonConvert.DeserializeObject<ShopGoodsAllResponse>(shopStr);
+                                    if (shopGoodsAllResponse != null && shopGoodsAllResponse.Data != null)
                                     {
-                                        foreach (var goods in shopGoodsAllResponse.Data.List)
+                                        if (shopGoodsAllResponse.Data.List != null)
                                         {
-                                            if (!string.IsNullOrEmpty(goods.Iid))
+                                            foreach (var goods in shopGoodsAllResponse.Data.List)
                                             {
-                                                itemIdSet.Add(goods.Iid);
+                                                if (!string.IsNullOrEmpty(goods.Iid))
+                                                {
+                                                    itemIdSet.Add(goods.Iid);
+                                                }
                                             }
                                         }
+                                        total = shopGoodsAllResponse.Data.Total;
                                     }
-                                    total = shopGoodsAllResponse.Data.Total;
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Write("解析获取店铺所有商品数据出错:", ex);
-                                Log.Write("商品数据:" + shopStr);
-                            }
-                        } while (pageNo++ * pageSize < total);
-                        //保存
-                        FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, itemSaveFileName), string.Join(Environment.NewLine, new List<string>(itemIdSet)));
-                        Thread.Sleep(20);
+                                catch (Exception ex)
+                                {
+                                    Log.Write("解析获取店铺所有商品数据出错:", ex);
+                                    Log.Write("商品数据:" + shopStr);
+                                }
+                            } while (pageNo++ * pageSize < total);
+                            //保存
+                            FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, itemSaveFileName), string.Join(Environment.NewLine, new List<string>(itemIdSet)));
+                            Thread.Sleep(20);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -658,7 +672,7 @@ namespace MoguItemSnatch
             {
 
             }
-            if (total == shopAllGoodsCount)
+            if (total <= shopAllGoodsCount)
             {
                 return false;
             }
