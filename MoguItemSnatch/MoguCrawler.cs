@@ -290,209 +290,171 @@ namespace MoguItemSnatch
                     {
                         baseDao.Add(moguShop);
                     }
-                    //是否需要抓取店铺所有商品
-                    if (IsNeedSnatchAllGoods(shopInfo.ShopId))
+                    
+                    ItemInfo itemInfo = itemDetailResponse.Data.Result.ItemInfo;
+                    if (itemInfo != null)
                     {
-                        shopIdSet.Add(shopInfo.ShopId);
-                        //保存
-                        FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, shopSaveFileName), string.Join(Environment.NewLine, new List<string>(shopIdSet)));
-                    }
-                    else
-                    {
-                        shopIdSet.Remove(shopInfo.ShopId);
-                        //保存
-                        FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, shopSaveFileName), string.Join(Environment.NewLine, new List<string>(shopIdSet)));
-                    }
-                }
-                ItemInfo itemInfo = itemDetailResponse.Data.Result.ItemInfo;
-                if (itemInfo != null)
-                {
-                    MoguItem moguItem = null;
-                    IList<MoguItem> moguItemList = baseDao.Get(new MoguItem() { ItemId = itemInfo.ItemId });
-                    if (moguItemList == null || moguItemList.Count == 0)
-                    {
-                        moguItem = new MoguItem()
+                        MoguItem moguItem = null;
+                        IList<MoguItem> moguItemList = baseDao.Get(new MoguItem() { ItemId = itemInfo.ItemId });
+                        if (moguItemList == null || moguItemList.Count == 0)
                         {
-                            CreateTime = DateTime.Now
-                        };
-                    }
-                    else
-                    {
-                        moguItem = moguItemList.FirstOrDefault();
-                        moguItem.ModifyTime = DateTime.Now;
-                        moguItemList.RemoveAt(0);
-                        baseDao.Delete(moguItemList);
-                    }
-                    moguItem.ShopId = shopInfo.ShopId;
-                    moguItem.ItemId = itemInfo.ItemId;
-                    moguItem.Title = itemInfo.Title;
-                    moguItem.Desc = itemInfo.Desc;
-                    moguItem.LowPrice = Convert.ToDecimal(itemInfo.LowPrice);
-                    moguItem.LowNowPrice = Convert.ToDecimal(itemInfo.LowNowPrice);
-                    moguItem.HighPrice = Convert.ToDecimal(itemInfo.HighPrice);
-                    moguItem.HighNowPrice = Convert.ToDecimal(itemInfo.HighNowPrice);
-                    if (moguItem.Id > 0)
-                    {
-                        baseDao.Update(moguItem);
-                    }
-                    else
-                    {
-                        baseDao.Add(moguItem);
-                    }
+                            moguItem = new MoguItem()
+                            {
+                                CreateTime = DateTime.Now
+                            };
+                        }
+                        else
+                        {
+                            moguItem = moguItemList.FirstOrDefault();
+                            moguItem.ModifyTime = DateTime.Now;
+                            moguItemList.RemoveAt(0);
+                            baseDao.Delete(moguItemList);
+                        }
+                        moguItem.ShopId = shopInfo.ShopId;
+                        moguItem.ItemId = itemInfo.ItemId;
+                        moguItem.Title = itemInfo.Title;
+                        moguItem.Desc = itemInfo.Desc;
+                        moguItem.LowPrice = Convert.ToDecimal(itemInfo.LowPrice);
+                        moguItem.LowNowPrice = Convert.ToDecimal(itemInfo.LowNowPrice);
+                        moguItem.HighPrice = Convert.ToDecimal(itemInfo.HighPrice);
+                        moguItem.HighNowPrice = Convert.ToDecimal(itemInfo.HighNowPrice);
+                        if (moguItem.Id > 0)
+                        {
+                            baseDao.Update(moguItem);
+                        }
+                        else
+                        {
+                            baseDao.Add(moguItem);
+                        }
 
-                    //主图
-                    List<string> topImages = itemDetailResponse.Data.Result.TopImages;
-                    if (topImages != null)
-                    {
-                        IList<MoguItemTopImage> moguItemTopImages = baseDao.Get(new MoguItemTopImage() { ItemId = itemInfo.ItemId });
-                        if (moguItemTopImages == null)
+                        //主图
+                        List<string> topImages = itemDetailResponse.Data.Result.TopImages;
+                        if (topImages != null)
                         {
-                            moguItemTopImages = new List<MoguItemTopImage>();
-                            foreach (var imageUrl in topImages)
+                            IList<MoguItemTopImage> moguItemTopImages = baseDao.Get(new MoguItemTopImage() { ItemId = itemInfo.ItemId });
+                            if (moguItemTopImages == null)
                             {
-                                moguItemTopImages.Add(new MoguItemTopImage()
+                                moguItemTopImages = new List<MoguItemTopImage>();
+                                foreach (var imageUrl in topImages)
                                 {
-                                    ItemId = itemInfo.ItemId,
-                                    ImageUrl = imageUrl,
-                                    CreateTime = DateTime.Now
-                                });
-                            }
-                            baseDao.Add(moguItemTopImages);
-                        }
-                        else
-                        {
-                            Dictionary<string, MoguItemTopImage> existImageUrl2TopImageObj = new Dictionary<string, MoguItemTopImage>();
-                            List<MoguItemTopImage> topImageAddList = new List<MoguItemTopImage>();
-                            List<MoguItemTopImage> topImageSaveList = new List<MoguItemTopImage>();
-                            foreach (var imageUrl in topImages)
-                            {
-                                if (existImageUrl2TopImageObj.ContainsKey(imageUrl))
-                                {
-                                    existImageUrl2TopImageObj[imageUrl].ModifyTime = DateTime.Now;
-                                    topImageSaveList.Add(existImageUrl2TopImageObj[imageUrl]);
-                                    existImageUrl2TopImageObj.Remove(imageUrl);
-                                }
-                                else
-                                {
-                                    topImageAddList.Add(new MoguItemTopImage()
+                                    moguItemTopImages.Add(new MoguItemTopImage()
                                     {
                                         ItemId = itemInfo.ItemId,
                                         ImageUrl = imageUrl,
                                         CreateTime = DateTime.Now
                                     });
                                 }
-                            }
-                            if (topImageAddList.Count > 0)
-                            {
-                                baseDao.Add(topImageAddList);
-                            }
-                            if (topImageSaveList.Count > 0)
-                            {
-                                baseDao.Update(topImageSaveList);
-                            }
-                            if (existImageUrl2TopImageObj.Keys.Count > 0)
-                            {
-                                baseDao.Delete(existImageUrl2TopImageObj.Values.ToList());
-                            }
-                        }
-                    }
-                    //详情图
-                    DetailInfo detailInfo = itemDetailResponse.Data.Result.DetailInfo;
-                    if (detailInfo != null)
-                    {
-                        IList<MoguItemDetailImage> moguItemDetailImages = baseDao.Get(new MoguItemDetailImage() { ItemId = itemInfo.ItemId });
-                        if (moguItemDetailImages == null)
-                        {
-                            moguItemDetailImages = new List<MoguItemDetailImage>();
-                            foreach (var detailImage in detailInfo.DetailImage)
-                            {
-                                foreach (var imageUrl in detailImage.List)
-                                {
-                                    moguItemDetailImages.Add(new MoguItemDetailImage()
-                                    {
-                                        ItemId = itemInfo.ItemId,
-                                        ImageUrl = imageUrl,
-                                        CreateTime = DateTime.Now
-                                    });
-                                }
-                            }
-                            baseDao.Add(moguItemDetailImages);
-                        }
-                        else
-                        {
-                            Dictionary<string, MoguItemDetailImage> existImageUrl2DetailImageObj = new Dictionary<string, MoguItemDetailImage>();
-                            List<MoguItemDetailImage> detailImageAddList = new List<MoguItemDetailImage>();
-                            List<MoguItemDetailImage> detailImageSaveList = new List<MoguItemDetailImage>();
-                            foreach (var imageUrl in topImages)
-                            {
-                                if (existImageUrl2DetailImageObj.ContainsKey(imageUrl))
-                                {
-                                    existImageUrl2DetailImageObj[imageUrl].ModifyTime = DateTime.Now;
-                                    detailImageAddList.Add(existImageUrl2DetailImageObj[imageUrl]);
-                                    existImageUrl2DetailImageObj.Remove(imageUrl);
-                                }
-                                else
-                                {
-                                    detailImageAddList.Add(new MoguItemDetailImage()
-                                    {
-                                        ItemId = itemInfo.ItemId,
-                                        ImageUrl = imageUrl,
-                                        CreateTime = DateTime.Now
-                                    });
-                                }
-                            }
-                            if (detailImageAddList.Count > 0)
-                            {
-                                baseDao.Add(detailImageAddList);
-                            }
-                            if (detailImageSaveList.Count > 0)
-                            {
-                                baseDao.Update(detailImageSaveList);
-                            }
-                            if (existImageUrl2DetailImageObj.Keys.Count > 0)
-                            {
-                                baseDao.Delete(existImageUrl2DetailImageObj.Values.ToList());
-                            }
-                        }
-                    }
-                    //商品属性
-                    ItemParams itemParams = itemDetailResponse.Data.Result.ItemParams;
-                    if (itemParams != null)
-                    {
-                        if (itemParams.Info != null && itemParams.Info.Set != null)
-                        {
-                            IList<MoguItemProp> moguItemProps = baseDao.Get(new MoguItemProp() { ItemId = itemInfo.ItemId });
-                            if (moguItemProps == null)
-                            {
-                                moguItemProps = new List<MoguItemProp>();
-                                foreach (var propName in itemParams.Info.Set.Keys)
-                                {
-                                    moguItemProps.Add(new MoguItemProp()
-                                    {
-                                        ItemId = itemInfo.ItemId,
-                                        PropName = propName,
-                                        PropValue = itemParams.Info.Set[propName],
-                                        CreateTime = DateTime.Now
-                                    });
-                                }
-                                baseDao.Add(moguItemProps);
+                                baseDao.Add(moguItemTopImages);
                             }
                             else
                             {
-                                Dictionary<string, MoguItemProp> existPropName2PropObj = new Dictionary<string, MoguItemProp>();
-                                List<MoguItemProp> propAddList = new List<MoguItemProp>();
-                                List<MoguItemProp> propSaveList = new List<MoguItemProp>();
-                                foreach (var propName in itemParams.Info.Set.Keys)
+                                Dictionary<string, MoguItemTopImage> existImageUrl2TopImageObj = new Dictionary<string, MoguItemTopImage>();
+                                List<MoguItemTopImage> topImageAddList = new List<MoguItemTopImage>();
+                                List<MoguItemTopImage> topImageSaveList = new List<MoguItemTopImage>();
+                                foreach (var imageUrl in topImages)
                                 {
-                                    if (existPropName2PropObj.ContainsKey(propName))
+                                    if (existImageUrl2TopImageObj.ContainsKey(imageUrl))
                                     {
-                                        existPropName2PropObj[propName].ModifyTime = DateTime.Now;
-                                        propAddList.Add(existPropName2PropObj[propName]);
-                                        existPropName2PropObj.Remove(propName);
+                                        existImageUrl2TopImageObj[imageUrl].ModifyTime = DateTime.Now;
+                                        topImageSaveList.Add(existImageUrl2TopImageObj[imageUrl]);
+                                        existImageUrl2TopImageObj.Remove(imageUrl);
                                     }
                                     else
                                     {
-                                        propAddList.Add(new MoguItemProp()
+                                        topImageAddList.Add(new MoguItemTopImage()
+                                        {
+                                            ItemId = itemInfo.ItemId,
+                                            ImageUrl = imageUrl,
+                                            CreateTime = DateTime.Now
+                                        });
+                                    }
+                                }
+                                if (topImageAddList.Count > 0)
+                                {
+                                    baseDao.Add(topImageAddList);
+                                }
+                                if (topImageSaveList.Count > 0)
+                                {
+                                    baseDao.Update(topImageSaveList);
+                                }
+                                if (existImageUrl2TopImageObj.Keys.Count > 0)
+                                {
+                                    baseDao.Delete(existImageUrl2TopImageObj.Values.ToList());
+                                }
+                            }
+                        }
+                        //详情图
+                        DetailInfo detailInfo = itemDetailResponse.Data.Result.DetailInfo;
+                        if (detailInfo != null)
+                        {
+                            IList<MoguItemDetailImage> moguItemDetailImages = baseDao.Get(new MoguItemDetailImage() { ItemId = itemInfo.ItemId });
+                            if (moguItemDetailImages == null)
+                            {
+                                moguItemDetailImages = new List<MoguItemDetailImage>();
+                                foreach (var detailImage in detailInfo.DetailImage)
+                                {
+                                    foreach (var imageUrl in detailImage.List)
+                                    {
+                                        moguItemDetailImages.Add(new MoguItemDetailImage()
+                                        {
+                                            ItemId = itemInfo.ItemId,
+                                            ImageUrl = imageUrl,
+                                            CreateTime = DateTime.Now
+                                        });
+                                    }
+                                }
+                                baseDao.Add(moguItemDetailImages);
+                            }
+                            else
+                            {
+                                Dictionary<string, MoguItemDetailImage> existImageUrl2DetailImageObj = new Dictionary<string, MoguItemDetailImage>();
+                                List<MoguItemDetailImage> detailImageAddList = new List<MoguItemDetailImage>();
+                                List<MoguItemDetailImage> detailImageSaveList = new List<MoguItemDetailImage>();
+                                foreach (var imageUrl in topImages)
+                                {
+                                    if (existImageUrl2DetailImageObj.ContainsKey(imageUrl))
+                                    {
+                                        existImageUrl2DetailImageObj[imageUrl].ModifyTime = DateTime.Now;
+                                        detailImageAddList.Add(existImageUrl2DetailImageObj[imageUrl]);
+                                        existImageUrl2DetailImageObj.Remove(imageUrl);
+                                    }
+                                    else
+                                    {
+                                        detailImageAddList.Add(new MoguItemDetailImage()
+                                        {
+                                            ItemId = itemInfo.ItemId,
+                                            ImageUrl = imageUrl,
+                                            CreateTime = DateTime.Now
+                                        });
+                                    }
+                                }
+                                if (detailImageAddList.Count > 0)
+                                {
+                                    baseDao.Add(detailImageAddList);
+                                }
+                                if (detailImageSaveList.Count > 0)
+                                {
+                                    baseDao.Update(detailImageSaveList);
+                                }
+                                if (existImageUrl2DetailImageObj.Keys.Count > 0)
+                                {
+                                    baseDao.Delete(existImageUrl2DetailImageObj.Values.ToList());
+                                }
+                            }
+                        }
+                        //商品属性
+                        ItemParams itemParams = itemDetailResponse.Data.Result.ItemParams;
+                        if (itemParams != null)
+                        {
+                            if (itemParams.Info != null && itemParams.Info.Set != null)
+                            {
+                                IList<MoguItemProp> moguItemProps = baseDao.Get(new MoguItemProp() { ItemId = itemInfo.ItemId });
+                                if (moguItemProps == null)
+                                {
+                                    moguItemProps = new List<MoguItemProp>();
+                                    foreach (var propName in itemParams.Info.Set.Keys)
+                                    {
+                                        moguItemProps.Add(new MoguItemProp()
                                         {
                                             ItemId = itemInfo.ItemId,
                                             PropName = propName,
@@ -500,66 +462,58 @@ namespace MoguItemSnatch
                                             CreateTime = DateTime.Now
                                         });
                                     }
-                                }
-                                if (propAddList.Count > 0)
-                                {
-                                    baseDao.Add(propAddList);
-                                }
-                                if (propSaveList.Count > 0)
-                                {
-                                    baseDao.Update(propSaveList);
-                                }
-                                if (existPropName2PropObj.Keys.Count > 0)
-                                {
-                                    baseDao.Delete(existPropName2PropObj.Values.ToList());
-                                }
-                            }
-                        }
-                    }
-                    //商品SKU属性
-                    SkuInfo skuInfo = itemDetailResponse.Data.Result.SkuInfo;
-                    if (skuInfo != null && skuInfo.Skus != null && skuInfo.Skus.Count > 0)
-                    {
-                        IList<MoguItemSku> moguItemSkus = baseDao.Get(new MoguItemSku() { ItemId = itemInfo.ItemId });
-                        if (moguItemSkus == null)
-                        {
-                            moguItemSkus = new List<MoguItemSku>();
-                            foreach (var sku in skuInfo.Skus)
-                            {
-                                moguItemSkus.Add(new MoguItemSku()
-                                {
-                                    ItemId = itemInfo.ItemId,
-                                    SkuId = sku.XdSkuId,
-                                    NowPrice = sku.NowPrice,
-                                    Price = sku.Price,
-                                    Currency = sku.Currency,
-                                    Color = sku.Color,
-                                    StyleId = sku.StyleId,
-                                    SizeId = sku.SizeId,
-                                    Size = sku.Size,
-                                    Stock = sku.Stock,
-                                    Img = sku.Img,
-                                    CreateTime = DateTime.Now
-                                });
-                            }
-                            baseDao.Add(moguItemSkus);
-                        }
-                        else
-                        {
-                            Dictionary<string, MoguItemSku> existSkuId2SkuObj = new Dictionary<string, MoguItemSku>();
-                            List<MoguItemSku> skuAddList = new List<MoguItemSku>();
-                            List<MoguItemSku> skuSaveList = new List<MoguItemSku>();
-                            foreach (var sku in skuInfo.Skus)
-                            {
-                                if (existSkuId2SkuObj.ContainsKey(sku.XdSkuId))
-                                {
-                                    existSkuId2SkuObj[sku.XdSkuId].ModifyTime = DateTime.Now;
-                                    skuSaveList.Add(existSkuId2SkuObj[sku.XdSkuId]);
-                                    existSkuId2SkuObj.Remove(sku.XdSkuId);
+                                    baseDao.Add(moguItemProps);
                                 }
                                 else
                                 {
-                                    skuAddList.Add(new MoguItemSku()
+                                    Dictionary<string, MoguItemProp> existPropName2PropObj = new Dictionary<string, MoguItemProp>();
+                                    List<MoguItemProp> propAddList = new List<MoguItemProp>();
+                                    List<MoguItemProp> propSaveList = new List<MoguItemProp>();
+                                    foreach (var propName in itemParams.Info.Set.Keys)
+                                    {
+                                        if (existPropName2PropObj.ContainsKey(propName))
+                                        {
+                                            existPropName2PropObj[propName].ModifyTime = DateTime.Now;
+                                            propAddList.Add(existPropName2PropObj[propName]);
+                                            existPropName2PropObj.Remove(propName);
+                                        }
+                                        else
+                                        {
+                                            propAddList.Add(new MoguItemProp()
+                                            {
+                                                ItemId = itemInfo.ItemId,
+                                                PropName = propName,
+                                                PropValue = itemParams.Info.Set[propName],
+                                                CreateTime = DateTime.Now
+                                            });
+                                        }
+                                    }
+                                    if (propAddList.Count > 0)
+                                    {
+                                        baseDao.Add(propAddList);
+                                    }
+                                    if (propSaveList.Count > 0)
+                                    {
+                                        baseDao.Update(propSaveList);
+                                    }
+                                    if (existPropName2PropObj.Keys.Count > 0)
+                                    {
+                                        baseDao.Delete(existPropName2PropObj.Values.ToList());
+                                    }
+                                }
+                            }
+                        }
+                        //商品SKU属性
+                        SkuInfo skuInfo = itemDetailResponse.Data.Result.SkuInfo;
+                        if (skuInfo != null && skuInfo.Skus != null && skuInfo.Skus.Count > 0)
+                        {
+                            IList<MoguItemSku> moguItemSkus = baseDao.Get(new MoguItemSku() { ItemId = itemInfo.ItemId });
+                            if (moguItemSkus == null)
+                            {
+                                moguItemSkus = new List<MoguItemSku>();
+                                foreach (var sku in skuInfo.Skus)
+                                {
+                                    moguItemSkus.Add(new MoguItemSku()
                                     {
                                         ItemId = itemInfo.ItemId,
                                         SkuId = sku.XdSkuId,
@@ -575,20 +529,68 @@ namespace MoguItemSnatch
                                         CreateTime = DateTime.Now
                                     });
                                 }
+                                baseDao.Add(moguItemSkus);
                             }
-                            if (skuAddList.Count > 0)
+                            else
                             {
-                                baseDao.Add(skuAddList);
-                            }
-                            if (skuSaveList.Count > 0)
-                            {
-                                baseDao.Update(skuSaveList);
-                            }
-                            if (existSkuId2SkuObj.Keys.Count > 0)
-                            {
-                                baseDao.Delete(existSkuId2SkuObj.Values.ToList());
+                                Dictionary<string, MoguItemSku> existSkuId2SkuObj = new Dictionary<string, MoguItemSku>();
+                                List<MoguItemSku> skuAddList = new List<MoguItemSku>();
+                                List<MoguItemSku> skuSaveList = new List<MoguItemSku>();
+                                foreach (var sku in skuInfo.Skus)
+                                {
+                                    if (existSkuId2SkuObj.ContainsKey(sku.XdSkuId))
+                                    {
+                                        existSkuId2SkuObj[sku.XdSkuId].ModifyTime = DateTime.Now;
+                                        skuSaveList.Add(existSkuId2SkuObj[sku.XdSkuId]);
+                                        existSkuId2SkuObj.Remove(sku.XdSkuId);
+                                    }
+                                    else
+                                    {
+                                        skuAddList.Add(new MoguItemSku()
+                                        {
+                                            ItemId = itemInfo.ItemId,
+                                            SkuId = sku.XdSkuId,
+                                            NowPrice = sku.NowPrice,
+                                            Price = sku.Price,
+                                            Currency = sku.Currency,
+                                            Color = sku.Color,
+                                            StyleId = sku.StyleId,
+                                            SizeId = sku.SizeId,
+                                            Size = sku.Size,
+                                            Stock = sku.Stock,
+                                            Img = sku.Img,
+                                            CreateTime = DateTime.Now
+                                        });
+                                    }
+                                }
+                                if (skuAddList.Count > 0)
+                                {
+                                    baseDao.Add(skuAddList);
+                                }
+                                if (skuSaveList.Count > 0)
+                                {
+                                    baseDao.Update(skuSaveList);
+                                }
+                                if (existSkuId2SkuObj.Keys.Count > 0)
+                                {
+                                    baseDao.Delete(existSkuId2SkuObj.Values.ToList());
+                                }
                             }
                         }
+                    }
+
+                    //是否需要抓取店铺所有商品
+                    if (IsNeedSnatchAllGoods(shopInfo.ShopId))
+                    {
+                        shopIdSet.Add(shopInfo.ShopId);
+                        //保存
+                        FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, shopSaveFileName), string.Join(Environment.NewLine, new List<string>(shopIdSet)));
+                    }
+                    else
+                    {
+                        shopIdSet.Remove(shopInfo.ShopId);
+                        //保存
+                        FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, shopSaveFileName), string.Join(Environment.NewLine, new List<string>(shopIdSet)));
                     }
                 }
             }
