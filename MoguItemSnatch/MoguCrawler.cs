@@ -290,7 +290,7 @@ namespace MoguItemSnatch
                     {
                         baseDao.Add(moguShop);
                     }
-                    
+
                     ItemInfo itemInfo = itemDetailResponse.Data.Result.ItemInfo;
                     if (itemInfo != null)
                     {
@@ -349,6 +349,23 @@ namespace MoguItemSnatch
                             else
                             {
                                 Dictionary<string, MoguItemTopImage> existImageUrl2TopImageObj = new Dictionary<string, MoguItemTopImage>();
+                                List<MoguItemTopImage> removeTopImages = new List<MoguItemTopImage>();
+                                foreach (MoguItemTopImage moguItemTopImage in moguItemTopImages)
+                                {
+                                    if (existImageUrl2TopImageObj.ContainsKey(moguItemTopImage.ImageUrl))
+                                    {
+                                        removeTopImages.Add(moguItemTopImage);
+                                    }
+                                    else
+                                    {
+                                        existImageUrl2TopImageObj[moguItemTopImage.ImageUrl] = moguItemTopImage;
+                                    }
+                                }
+                                if (removeTopImages.Count > 0)
+                                {
+                                    baseDao.Delete(removeTopImages);
+                                }
+
                                 List<MoguItemTopImage> topImageAddList = new List<MoguItemTopImage>();
                                 List<MoguItemTopImage> topImageSaveList = new List<MoguItemTopImage>();
                                 foreach (var imageUrl in topImages)
@@ -408,6 +425,23 @@ namespace MoguItemSnatch
                             else
                             {
                                 Dictionary<string, MoguItemDetailImage> existImageUrl2DetailImageObj = new Dictionary<string, MoguItemDetailImage>();
+                                List<MoguItemDetailImage> removeDetailImages = new List<MoguItemDetailImage>();
+                                foreach (MoguItemDetailImage moguItemDetailImage in moguItemDetailImages)
+                                {
+                                    if (existImageUrl2DetailImageObj.ContainsKey(moguItemDetailImage.ImageUrl))
+                                    {
+                                        removeDetailImages.Add(moguItemDetailImage);
+                                    }
+                                    else
+                                    {
+                                        existImageUrl2DetailImageObj[moguItemDetailImage.ImageUrl] = moguItemDetailImage;
+                                    }
+                                }
+                                if (removeDetailImages.Count > 0)
+                                {
+                                    baseDao.Delete(removeDetailImages);
+                                }
+
                                 List<MoguItemDetailImage> detailImageAddList = new List<MoguItemDetailImage>();
                                 List<MoguItemDetailImage> detailImageSaveList = new List<MoguItemDetailImage>();
                                 foreach (var imageUrl in topImages)
@@ -467,6 +501,22 @@ namespace MoguItemSnatch
                                 else
                                 {
                                     Dictionary<string, MoguItemProp> existPropName2PropObj = new Dictionary<string, MoguItemProp>();
+                                    List<MoguItemProp> removeProps = new List<MoguItemProp>();
+                                    foreach (MoguItemProp moguItemProp in moguItemProps)
+                                    {
+                                        if (existPropName2PropObj.ContainsKey(moguItemProp.PropName))
+                                        {
+                                            removeProps.Add(moguItemProp);
+                                        }
+                                        else
+                                        {
+                                            existPropName2PropObj[moguItemProp.PropName] = moguItemProp;
+                                        }
+                                    }
+                                    if (removeProps.Count > 0)
+                                    {
+                                        baseDao.Delete(removeProps);
+                                    }
                                     List<MoguItemProp> propAddList = new List<MoguItemProp>();
                                     List<MoguItemProp> propSaveList = new List<MoguItemProp>();
                                     foreach (var propName in itemParams.Info.Set.Keys)
@@ -534,6 +584,23 @@ namespace MoguItemSnatch
                             else
                             {
                                 Dictionary<string, MoguItemSku> existSkuId2SkuObj = new Dictionary<string, MoguItemSku>();
+                                List<MoguItemSku> removeSkus = new List<MoguItemSku>();
+                                foreach (MoguItemSku moguItemSku in removeSkus)
+                                {
+                                    if (existSkuId2SkuObj.ContainsKey(moguItemSku.SkuId))
+                                    {
+                                        removeSkus.Add(moguItemSku);
+                                    }
+                                    else
+                                    {
+                                        existSkuId2SkuObj[moguItemSku.SkuId] = moguItemSku;
+                                    }
+                                }
+                                if (removeSkus.Count > 0)
+                                {
+                                    baseDao.Delete(removeSkus);
+                                }
+
                                 List<MoguItemSku> skuAddList = new List<MoguItemSku>();
                                 List<MoguItemSku> skuSaveList = new List<MoguItemSku>();
                                 foreach (var sku in skuInfo.Skus)
