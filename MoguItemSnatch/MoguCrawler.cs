@@ -237,11 +237,53 @@ namespace MoguItemSnatch
                     if (itemIdSet.Count > 0)
                     {
                         List<string> itemList = new List<string>(itemIdSet);
+                        int maxTaskCount = 5;
+                        int usedTaskCount = 0;
+                        int index = 1;
+                        List<string> itemIdList = new List<string>();
+                        object lockObj = new object();
                         foreach (string itemId in itemList)
                         {
-                            SaveItemDetail(itemId);
-                            itemIdSet.Remove(itemId);
-                            Thread.Sleep(20);
+                            itemIdList.Add(itemId);
+                            if (index % 20 == 0 || index >= itemList.Count)
+                            {
+                                while (usedTaskCount >= maxTaskCount)
+                                {
+                                    Thread.Sleep(1000);
+                                }
+                                usedTaskCount++;
+                                Task.Factory.StartNew((objData) =>
+                                {
+                                    try
+                                    {
+                                        List<string> tempList = objData as List<string>;
+                                        if (tempList != null)
+                                        {
+                                            foreach (string tempItemId in tempList)
+                                            {
+                                                SaveItemDetail(itemId);
+                                                lock (lockObj)
+                                                {
+                                                    itemIdSet.Remove(itemId);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                    finally
+                                    {
+                                        usedTaskCount--;
+                                    }
+                                }, itemIdList);
+                                itemIdList.Clear();
+                            }
+                            index++;
+                            //SaveItemDetail(itemId);
+                            //itemIdSet.Remove(itemId);
+                            //Thread.Sleep(20);
                         }
                     }
                 }
