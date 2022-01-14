@@ -728,6 +728,10 @@ namespace MoguItemSnatch
                         List<string> shopList = new List<string>(shopIdSet);
                         foreach (string shopId in shopList)
                         {
+                            if(!IsNeedSnatchAllGoods(shopId))
+                            {
+                                continue;
+                            }
                             int pageNo = 1;
                             int pageSize = 60;
                             int total = 0;
