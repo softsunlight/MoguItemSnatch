@@ -10,13 +10,17 @@ namespace MoguItemSnatch
     /// </summary>
     public class FileUtil
     {
-        private static readonly object _writeLock = new object();
+        private static readonly Dictionary<string, object> writeLockDic = new Dictionary<string, object>();
 
         public static bool Write(string filePath, string content)
         {
             try
             {
-                lock (_writeLock)
+                if (!writeLockDic.ContainsKey(filePath))
+                {
+                    writeLockDic[filePath] = new object();
+                }
+                lock (writeLockDic[filePath])
                 {
                     File.WriteAllText(filePath, content);
                 }

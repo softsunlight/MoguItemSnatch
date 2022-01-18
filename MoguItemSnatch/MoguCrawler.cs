@@ -39,13 +39,21 @@ namespace MoguItemSnatch
         /// </summary>
         private List<string> actionList = new List<string>() { "clothing", "skirt", "trousers", "neiyi", "shoes", "bags", "boyfriend", "baby", "home", "accessories", "jiadian", "food" };
         /// <summary>
-        /// 商品ID集合
+        /// 搜索商品ID集合
         /// </summary>
         private HashSet<string> searchItemIdSet;
         /// <summary>
-        /// 商品ID集合
+        /// 搜索商品ID集合锁
+        /// </summary>
+        private static readonly object searchItemIdSetLockObj = new object();
+        /// <summary>
+        /// 店铺所有商品ID集合
         /// </summary>
         private HashSet<string> shopItemIdSet;
+        /// <summary>
+        /// 店铺所有商品ID集合锁
+        /// </summary>
+        private static readonly object shopItemIdSetLockObj = new object();
         /// <summary>
         /// 上次保存商品ID集合时的数量
         /// </summary>
@@ -58,6 +66,10 @@ namespace MoguItemSnatch
         /// 店铺ID集合
         /// </summary>
         private HashSet<string> shopIdSet;
+        /// <summary>
+        /// 店铺ID集合锁
+        /// </summary>
+        private static readonly object shopIdSetLockObj = new object();
         /// <summary>
         /// 启动爬虫
         /// </summary>
@@ -121,11 +133,14 @@ namespace MoguItemSnatch
                         int count = searchItemIdSet.Count;
                         if (count != lastCount)
                         {
-                            List<string> tempList = new List<string>(searchItemIdSet);
-                            if (tempList != null && tempList.Count > 0)
+                            lock (searchItemIdSetLockObj)
                             {
-                                //保存
-                                FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, searchItemSaveFileName), string.Join(Environment.NewLine, tempList));
+                                List<string> tempList = new List<string>(searchItemIdSet);
+                                if (tempList != null && tempList.Count > 0)
+                                {
+                                    //保存
+                                    FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, searchItemSaveFileName), string.Join(Environment.NewLine, tempList));
+                                }
                             }
                             lastCount = count;
                         }
@@ -254,11 +269,14 @@ namespace MoguItemSnatch
                         string itemId = m.Groups["itemId"].Value;
                         if (!string.IsNullOrEmpty(itemId))
                         {
-                            if (searchItemIdSet == null)
+                            lock (searchItemIdSetLockObj)
                             {
-                                searchItemIdSet = new HashSet<string>();
+                                if (searchItemIdSet == null)
+                                {
+                                    searchItemIdSet = new HashSet<string>();
+                                }
+                                searchItemIdSet.Add(itemId);
                             }
-                            searchItemIdSet.Add(itemId);
                             count++;
                         }
                     }
@@ -275,12 +293,15 @@ namespace MoguItemSnatch
                 {
                     if (searchItemIdSet.Count > 0)
                     {
-                        List<string> itemList = new List<string>(searchItemIdSet);
+                        List<string> itemList = null;
+                        lock (searchItemIdSetLockObj)
+                        {
+                            itemList = new List<string>(searchItemIdSet);
+                        }
                         int maxTaskCount = 10;
                         int usedTaskCount = 0;
                         int index = 1;
                         List<string> itemIdList = new List<string>();
-                        object lockObj = new object();
                         object usedTaskLockObj = new object();
                         foreach (string itemId in itemList)
                         {
@@ -303,13 +324,16 @@ namespace MoguItemSnatch
                                             foreach (string tempItemId in tempList)
                                             {
                                                 SaveItemDetail(tempItemId, true);
-                                                lock (lockObj)
+                                                lock (searchItemIdSetLockObj)
                                                 {
                                                     searchItemIdSet.Remove(tempItemId);
                                                 }
                                             }
-                                            //保存
-                                            FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, searchItemSaveFileName), string.Join(Environment.NewLine, new List<string>(searchItemIdSet)));
+                                            lock (searchItemIdSetLockObj)
+                                            {
+                                                //保存
+                                                FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, searchItemSaveFileName), string.Join(Environment.NewLine, new List<string>(searchItemIdSet)));
+                                            }
                                         }
                                     }
                                     catch (Exception ex)
@@ -351,12 +375,15 @@ namespace MoguItemSnatch
                 {
                     if (shopItemIdSet.Count > 0)
                     {
-                        List<string> itemList = new List<string>(shopItemIdSet);
+                        List<string> itemList = null;
+                        lock (shopItemIdSetLockObj)
+                        {
+                            itemList = new List<string>(shopItemIdSet);
+                        }
                         int maxTaskCount = 5;
                         int usedTaskCount = 0;
                         int index = 1;
                         List<string> itemIdList = new List<string>();
-                        object lockObj = new object();
                         object usedTaskLockObj = new object();
                         foreach (string itemId in itemList)
                         {
@@ -379,13 +406,16 @@ namespace MoguItemSnatch
                                             foreach (string tempItemId in tempList)
                                             {
                                                 SaveItemDetail(tempItemId, false);
-                                                lock (lockObj)
+                                                lock (shopItemIdSetLockObj)
                                                 {
                                                     shopItemIdSet.Remove(tempItemId);
                                                 }
                                             }
-                                            //保存
-                                            FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, shopItemSaveFileName), string.Join(Environment.NewLine, new List<string>(shopItemIdSet)));
+                                            lock (shopItemIdSetLockObj)
+                                            {
+                                                //保存
+                                                FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, shopItemSaveFileName), string.Join(Environment.NewLine, new List<string>(shopItemIdSet)));
+                                            }
                                         }
                                     }
                                     catch (Exception ex)
@@ -476,10 +506,10 @@ namespace MoguItemSnatch
                                 moguItem.ItemId = itemInfo.ItemId;
                                 moguItem.Title = itemInfo.Title;
                                 moguItem.Desc = itemInfo.Desc;
-                                moguItem.LowPrice = itemInfo.LowPrice;
-                                moguItem.LowNowPrice = itemInfo.LowNowPrice;
-                                moguItem.HighPrice = itemInfo.HighPrice;
-                                moguItem.HighNowPrice = itemInfo.HighNowPrice;
+                                moguItem.LowPrice = Convert.ToDecimal(itemInfo.LowPrice);
+                                moguItem.LowNowPrice = Convert.ToDecimal(itemInfo.LowNowPrice);
+                                moguItem.HighPrice = Convert.ToDecimal(itemInfo.HighPrice);
+                                moguItem.HighNowPrice = Convert.ToDecimal(itemInfo.HighNowPrice);
                                 baseDao.Add(moguItem);
                             }
                             else
@@ -834,7 +864,7 @@ namespace MoguItemSnatch
                 }
                 else
                 {
-                    Log.Write("SnatchItemDetail Data:" + itemStr);
+                    Log.Write("SnatchItemDetail Data: itemId:" + itemId + ",itemDetailData:" + itemStr);
                 }
             }
             catch (Exception ex)
@@ -851,12 +881,19 @@ namespace MoguItemSnatch
                 {
                     if (shopIdSet.Count > 0)
                     {
-                        List<string> shopList = new List<string>(shopIdSet);
+                        List<string> shopList = null;
+                        lock (shopIdSetLockObj)
+                        {
+                            shopList = new List<string>(shopIdSet);
+                        }
                         foreach (string shopId in shopList)
                         {
                             if (!IsNeedSnatchAllGoods(shopId))
                             {
-                                shopIdSet.Remove(shopId);
+                                lock (shopIdSetLockObj)
+                                {
+                                    shopIdSet.Remove(shopId);
+                                }
                                 continue;
                             }
                             int pageNo = 1;
@@ -889,9 +926,15 @@ namespace MoguItemSnatch
                                     Log.Write("解析获取店铺所有商品数据出错:", ex);
                                 }
                             } while (pageNo++ * pageSize < total);
-                            shopIdSet.Remove(shopId);
-                            //保存
-                            FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, shopItemSaveFileName), string.Join(Environment.NewLine, new List<string>(shopItemIdSet)));
+                            lock (shopIdSetLockObj)
+                            {
+                                shopIdSet.Remove(shopId);
+                            }
+                            lock (shopItemIdSetLockObj)
+                            {
+                                //保存
+                                FileUtil.Write(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, shopItemSaveFileName), string.Join(Environment.NewLine, new List<string>(shopItemIdSet)));
+                            }
                             Thread.Sleep(20);
                         }
                     }

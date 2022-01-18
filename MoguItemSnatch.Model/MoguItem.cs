@@ -32,19 +32,19 @@ namespace MoguItemSnatch.Model
         /// <summary>
         /// SKU最低价
         /// </summary>
-        public string LowPrice { get; set; }
+        public decimal LowPrice { get; set; }
         /// <summary>
         /// 当前SKU最低价
         /// </summary>
-        public string LowNowPrice { get; set; }
+        public decimal LowNowPrice { get; set; }
         /// <summary>
         /// SKU最高价
         /// </summary>
-        public string HighPrice { get; set; }
+        public decimal HighPrice { get; set; }
         /// <summary>
         /// 当前SKU最高价
         /// </summary>
-        public string HighNowPrice { get; set; }
+        public decimal HighNowPrice { get; set; }
         /// <summary>
         /// 创建时间
         /// </summary>
