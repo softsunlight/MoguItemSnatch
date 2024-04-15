@@ -14,7 +14,7 @@ namespace MoguItemSnatch
     /// 获取蘑菇街商品工具类
     /// </summary>
     public class MoguUtil
-    {
+    { 
 
         private static string uuid;
 

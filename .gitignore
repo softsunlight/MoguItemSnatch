@@ -2,13 +2,9 @@
 # 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
 ################################################################################
 
-/.vs/MoguItemSnatch/v16
-/MoguItemSnatch/bin/Debug/netcoreapp3.1
-/MoguItemSnatch/obj
-/.vs/MoguItemSnatch/DesignTimeBuild
-/MoguItemSnatch.Dao/obj
-/MoguItemSnatch.Model/obj
-/MoguItemSnatch.Service/obj
-/MoguItemSnatch.Dao/bin/Debug/netcoreapp3.1
-/MoguItemSnatch.Model/bin/Debug/netcoreapp3.1
-/MoguItemSnatch.Service/bin/Debug/netcoreapp3.1
+**/bin
+**/obj
+**/logs
+**/PublishProfiles
+/.vs
+/.learningtransport

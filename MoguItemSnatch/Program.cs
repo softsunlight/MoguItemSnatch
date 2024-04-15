@@ -10,7 +10,7 @@ namespace MoguItemSnatch
         static void Main(string[] args)
         {
             MoguCrawler moguCrawler = new MoguCrawler();
-            moguCrawler.Start();
+            moguCrawler.Start2();
         }
     }
 }
